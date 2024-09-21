@@ -1,0 +1,37 @@
+name: polleriadelivery
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  carousel_slider: ^5.0.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/Logo.png
+    - assets/images/categorias/promociones/promo1.png
+    - assets/images/categorias/promociones/promo2.png
+    - assets/images/pollo.png
+    - assets/images/carnes.png
+    - assets/images/carnes2.png
+    - assets/images/caldos.png
+    - assets/images/lomo.png
+    - assets/images/chicha.png
+    - assets/images/papas.png
+    - assets/images/postre.png
+    - assets/images/promo.png
+    - assets/images/verde.png
