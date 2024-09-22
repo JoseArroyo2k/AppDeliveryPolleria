@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'register.dart';
-import 'home.dart'; // Importa home.dart donde tienes la nueva clase 'CategoryHomePage'
+import 'home.dart'; // Pantalla de categorías
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[900], // Fondo verde oscuro para resaltar el logo
+      backgroundColor: Colors.green[900], // Fondo verde oscuro
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
         child: Column(
@@ -18,17 +18,17 @@ class HomePage extends StatelessWidget {
             Column(
               children: [
                 Image.asset(
-                  'assets/images/Logo.png', // Asegúrate de que el logo esté en esta ruta
-                  height: 180, // Tamaño del logo ajustado
+                  'assets/images/Logo.png', // Asegúrate que este logo esté bien ubicado
+                  height: 180, // Tamaño del logo
                 ),
                 SizedBox(height: 30),
                 Text(
                   'Gran Chicken', // Nombre de la pollería
                   style: TextStyle(
-                    fontSize: 48, // Tamaño adecuado
+                    fontSize: 48,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontFamily: 'Poppins', // Fuente moderna
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ],
@@ -41,8 +41,8 @@ class HomePage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white.withOpacity(0.8),
-                    fontFamily: 'Poppins', // Fuente moderna
-                    height: 1.5, // Mejora el espaciado de las líneas
+                    fontFamily: 'Poppins',
+                    height: 1.5,
                   ),
                 ),
                 SizedBox(height: 50),
@@ -51,16 +51,13 @@ class HomePage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
+                      Navigator.pushNamed(context, '/login');
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.orange, // Color naranja vivo
+                      backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12), // Bordes más suaves
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: Text(
@@ -68,7 +65,7 @@ class HomePage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white,
-                        fontFamily: 'Poppins', // Fuente moderna
+                        fontFamily: 'Poppins',
                       ),
                     ),
                   ),
@@ -79,10 +76,7 @@ class HomePage extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => RegisterPage()),
-                      );
+                      Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -96,7 +90,7 @@ class HomePage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.orange,
-                        fontFamily: 'Poppins', // Fuente moderna
+                        fontFamily: 'Poppins',
                       ),
                     ),
                   ),
@@ -105,11 +99,7 @@ class HomePage extends StatelessWidget {
                 // Botón de acceder como invitado
                 TextButton(
                   onPressed: () {
-                    // Navegar a la página CategoryHomePage con categorías
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CategoryHomePage()), // Aquí va la página con el menú de categorías
-                    );
+                    Navigator.pushNamed(context, '/homepage');
                   },
                   child: Text(
                     'Acceder como invitado',

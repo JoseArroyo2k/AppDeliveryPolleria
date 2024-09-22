@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'pollo.dart'; // Importamos el archivo de la categoría Pollo
 
 class CategoryHomePage extends StatefulWidget {
   @override
@@ -43,6 +44,17 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
     'Promociones': 'assets/images/promo.png',
     'Mundo verde': 'assets/images/verde.png',
   };
+
+  // Función para manejar la navegación a las páginas de categorías
+  void _navigateToCategory(String category) {
+    if (category == 'Pollo a la brasa') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PolloPage()), // Navega a la pantalla de Pollo
+      );
+    }
+    // Aquí podrías agregar más condiciones para otras categorías.
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -147,47 +159,50 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
                     itemCount: categories.length,
                     itemBuilder: (context, index) {
                       String category = categories[index];
-                      return Column(
-                        children: [
-                          // Container para la imagen con borde verde
-                          Container(
-                            height: 120,
-                            width: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.orange[100],
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: Colors.green[900]!,
-                                width: 3.0, // Grosor del borde verde
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 2,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
+                      return GestureDetector(
+                        onTap: () => _navigateToCategory(category), // Añadimos la navegación
+                        child: Column(
+                          children: [
+                            // Container para la imagen con borde verde
+                            Container(
+                              height: 120,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.orange[100],
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: Colors.green[900]!,
+                                  width: 3.0, // Grosor del borde verde
                                 ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12), // Redondeamos solo un poco para ajustar con el borde
-                              child: Image.asset(
-                                categoryImages[category]!,
-                                fit: BoxFit.cover,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  categoryImages[category]!,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            category,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[900],
+                            SizedBox(height: 8),
+                            Text(
+                              category,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[900],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),

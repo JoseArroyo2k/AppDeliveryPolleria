@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1099152935941",
+    "project_id": "granchicken-bae12",
+    "storage_bucket": "granchicken-bae12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099152935941:android:2ef84f9c44a6aa8bc6206c",
+        "android_client_info": {
+          "package_name": "com.example.polleri"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvG6ipBwlkb9wXe11dAJKjy1DlxfXNFA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099152935941:android:7ebb46f43a00ea98c6206c",
+        "android_client_info": {
+          "package_name": "com.example.polleriadelivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvG6ipBwlkb9wXe11dAJKjy1DlxfXNFA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart'; // Importa la página de inicio
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'homepage.dart';
+import 'login.dart';
+import 'register.dart';
+import 'home.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializa Firebase aquí
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(const MyApp());
 }
 
@@ -16,7 +28,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
-      home: HomePage(), // Establecemos HomePage como la primera pantalla
+      initialRoute: '/home', // Ruta inicial
+      routes: {
+        '/home': (context) => HomePage(), // Página de bienvenida con el logo
+        '/login': (context) => LoginPage(), // Pantalla de login
+        '/register': (context) => RegisterPage(), // Pantalla de registro
+        '/homepage': (context) => CategoryHomePage(), // Pantalla principal de categorías
+      },
     );
   }
 }

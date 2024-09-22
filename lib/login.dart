@@ -1,17 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  // Función para encriptar la contraseña (igual que en el registro)
+  String _hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  void _login() async {
+    try {
+      // Consultar Firestore para verificar si existe el usuario con la contraseña encriptada
+      QuerySnapshot userSnapshot = await _firestore
+          .collection('Usuarios')
+          .where('email', isEqualTo: _emailController.text)
+          .where('password', isEqualTo: _hashPassword(_passwordController.text))
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        // Usuario encontrado, redirigir al HomePage
+        Navigator.pushReplacementNamed(context, '/homepage');
+        print('Usuario autenticado');
+      } else {
+        // Usuario no encontrado
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Correo o contraseña incorrectos')),
+        );
+      }
+    } catch (e) {
+      print('Error al autenticar el usuario: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[900], // Fondo verde bosque
+      backgroundColor: Colors.green[900],
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Botón de volver
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
@@ -39,8 +81,9 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 40),
-              // Campo de correo electrónico
+              // Campo de correo
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.email, color: Colors.orange),
                   hintText: 'Correo electrónico',
@@ -55,6 +98,7 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 20),
               // Campo de contraseña
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.lock, color: Colors.orange),
@@ -67,29 +111,15 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              // Botón "Olvidaste tu contraseña"
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    '¿Olvidaste tu contraseña?',
-                    style: TextStyle(
-                      color: Colors.orange,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
-              // Botón de Iniciar Sesión
+              SizedBox(height: 40),
+              // Botón de login
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: Colors.orange, // Botón naranja
+                    backgroundColor: Colors.orange,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
