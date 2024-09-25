@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'detalle.dart'; // Importamos la nueva página de detalles del producto
+import 'carrito.dart'; // Importa la página de carrito
 
 class PolloPage extends StatefulWidget {
   @override
@@ -37,6 +39,17 @@ class _PolloPageState extends State<PolloPage> {
       appBar: AppBar(
         title: Text('Pollo a la brasa'),
         backgroundColor: Colors.green[900],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CarritoPage()), // Lleva al carrito
+              );
+            },
+          ),
+        ],
       ),
       body: polloProducts.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -57,79 +70,51 @@ class _PolloPageState extends State<PolloPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Imagen del producto
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.network(
-                                imagenUrl,
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            // Nombre del producto
-                            Text(
-                              nombre,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[900],
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            // Descripción del producto
-                            Text(
-                              descripcion,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            // Precio y botones de cantidad
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'S/ $precio',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        // Lógica para disminuir cantidad
-                                      },
-                                      icon: Icon(Icons.remove),
-                                      color: Colors.orange,
-                                    ),
-                                    Text(
-                                      '0', // Inicialmente la cantidad es 0
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        // Lógica para aumentar cantidad
-                                      },
-                                      icon: Icon(Icons.add),
-                                      color: Colors.orange,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                      child: ListTile(
+                        contentPadding: EdgeInsets.all(16.0),
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            imagenUrl,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          ),
                         ),
+                        title: Text(
+                          nombre,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[900],
+                          ),
+                        ),
+                        subtitle: Text(
+                          descripcion,
+                          style: TextStyle(fontSize: 14, color: Colors.black54),
+                        ),
+                        trailing: Text(
+                          'S/ $precio',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        onTap: () {
+                          // Navegación a la pantalla de detalles del producto
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetalleProductoPage(
+                                nombre: nombre,
+                                descripcion: descripcion,
+                                precio: double.parse(precio),
+                                imagenUrl: imagenUrl,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
@@ -154,8 +139,8 @@ class _PolloPageState extends State<PolloPage> {
             label: 'Menú',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Carrito',
+            icon: Icon(Icons.person),
+            label: 'Usuario',
           ),
         ],
         currentIndex: 0,
@@ -163,7 +148,7 @@ class _PolloPageState extends State<PolloPage> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.white,
         onTap: (index) {
-          // Lógica para navegar entre el menú y el carrito
+          // Lógica para navegar entre el menú y el perfil de usuario
         },
       ),
     );

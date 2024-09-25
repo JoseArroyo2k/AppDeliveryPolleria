@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart'; // Importamos provider
 import 'firebase_options.dart';
 import 'homepage.dart';
 import 'login.dart';
 import 'register.dart';
 import 'home.dart';
+import 'cart_provider.dart'; // Importamos el Provider del carrito
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,19 +24,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Polleria Delivery',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()), // Añadimos el Provider aquí
+      ],
+      child: MaterialApp(
+        title: 'Polleria Delivery',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+          useMaterial3: true,
+        ),
+        initialRoute: '/home', // Ruta inicial
+        routes: {
+          '/home': (context) => HomePage(), // Página de bienvenida con el logo
+          '/login': (context) => LoginPage(), // Pantalla de login
+          '/register': (context) => RegisterPage(), // Pantalla de registro
+          '/homepage': (context) => CategoryHomePage(), // Pantalla principal de categorías
+        },
       ),
-      initialRoute: '/home', // Ruta inicial
-      routes: {
-        '/home': (context) => HomePage(), // Página de bienvenida con el logo
-        '/login': (context) => LoginPage(), // Pantalla de login
-        '/register': (context) => RegisterPage(), // Pantalla de registro
-        '/homepage': (context) => CategoryHomePage(), // Pantalla principal de categorías
-      },
     );
   }
 }

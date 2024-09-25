@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'pollo.dart'; // Importamos el archivo de la categoría Pollo
+import 'carrito.dart'; // Importamos el archivo de carrito
 
 class CategoryHomePage extends StatefulWidget {
   @override
@@ -77,8 +78,13 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
             ),
             Spacer(),
             IconButton(
-              icon: Icon(Icons.person, color: Colors.white),
-              onPressed: () {},
+              icon: Icon(Icons.shopping_cart), // Cambiamos aquí el carrito
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CarritoPage()), // Navega al carrito
+                );
+              },
             ),
           ],
         ),
@@ -219,8 +225,8 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
             label: 'Menú',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Carrito',
+            icon: Icon(Icons.person), // Cambiamos aquí el icono del usuario
+            label: 'Usuario',
           ),
         ],
         currentIndex: _selectedIndex,

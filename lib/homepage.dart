@@ -1,118 +1,132 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'register.dart';
-import 'home.dart'; // Pantalla de categorías
+import 'home.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[900], // Fondo verde oscuro
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Logo centrado
-            Column(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green[700]!, Colors.green[900]!],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 40.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset(
-                  'assets/images/Logo.png', // Asegúrate que este logo esté bien ubicado
-                  height: 180, // Tamaño del logo
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Logo
+                      Image.asset(
+                        'assets/images/Logo.png',
+                        height: 120,
+                      ),
+                      SizedBox(height: 20),
+                      // App name
+                      Text(
+                        'Gran Chicken',
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      // Description
+                      Text(
+                        'Disfruta toda la carta de pollos a la brasa, carnes, caldos y demás',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.8),
+                          fontFamily: 'Poppins',
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 30),
-                Text(
-                  'Gran Chicken', // Nombre de la pollería
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
+                // Buttons container
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange, // Corregido aquí
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Iniciar Sesión',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/register');
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Colors.orange, width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Regístrate',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.orange,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/homepage');
+                        },
+                        child: Text(
+                          'Acceder como invitado',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white.withOpacity(0.8),
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            Column(
-              children: [
-                Text(
-                  'Disfruta toda la carta de pollos a la brasa, carnes, caldos y demás',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white.withOpacity(0.8),
-                    fontFamily: 'Poppins',
-                    height: 1.5,
-                  ),
-                ),
-                SizedBox(height: 50),
-                // Botón de Iniciar Sesión
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Iniciar Sesión',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                // Botón de Registro
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.orange, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Regístrate',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.orange,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                // Botón de acceder como invitado
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/homepage');
-                  },
-                  child: Text(
-                    'Acceder como invitado',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.8),
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
