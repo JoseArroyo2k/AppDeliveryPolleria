@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:provider/provider.dart'; // Importamos Provider
+import 'user_provider.dart'; // Importamos el UserProvider
 
 class LoginPage extends StatefulWidget {
   @override
@@ -30,11 +32,28 @@ class _LoginPageState extends State<LoginPage> {
           .get();
 
       if (userSnapshot.docs.isNotEmpty) {
-        // Usuario encontrado, redirigir al HomePage
-        Navigator.pushReplacementNamed(context, '/homepage');
+        // Usuario encontrado
+        var userData = userSnapshot.docs.first.data() as Map<String, dynamic>;
+        String userName = userData['nombre'] ?? 'Usuario'; 
+        String direccion = userData['direccion'] ?? '';
+        String correo = _emailController.text;
+        String numero = userData['numero'] ?? '';
+
+        // Guardamos los datos del usuario en el UserProvider
+        Provider.of<UserProvider>(context, listen: false)
+            .setUserData(userName, direccion, correo, numero);
+
+        // Redirigir al HomePage como registrado
+        Navigator.pushReplacementNamed(
+          context,
+          '/homepage',
+          arguments: {
+            'isRegistered': true, 
+            'userName': userName, 
+          },
+        );
         print('Usuario autenticado');
       } else {
-        // Usuario no encontrado
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Correo o contraseña incorrectos')),
         );
@@ -81,7 +100,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 40),
-              // Campo de correo
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -96,7 +114,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 20),
-              // Campo de contraseña
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -112,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 40),
-              // Botón de login
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

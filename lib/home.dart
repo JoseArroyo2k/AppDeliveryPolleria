@@ -10,7 +10,20 @@ class CategoryHomePage extends StatefulWidget {
 
 class _CategoryHomePageState extends State<CategoryHomePage> {
   int _selectedIndex = 0;
+  bool isRegistered = false; // Inicialmente asumimos que es invitado
+  String userName = 'Invitado'; // Nombre por defecto para invitados
   final CarouselController _carouselController = CarouselController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Recibimos el argumento desde el LoginPage
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      isRegistered = args['isRegistered'] ?? false;
+      userName = args['userName'] ?? 'Invitado';
+    }
+  }
 
   // Lista de categorías
   final List<String> categories = [
@@ -54,7 +67,6 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
         MaterialPageRoute(builder: (context) => PolloPage()), // Navega a la pantalla de Pollo
       );
     }
-    // Aquí podrías agregar más condiciones para otras categorías.
   }
 
   void _onItemTapped(int index) {
@@ -73,7 +85,7 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Bienvenido: Invitado',
+              'Bienvenido: $userName', // Mostramos el nombre del usuario o "Invitado"
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Spacer(),
@@ -133,13 +145,10 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
                   autoPlay: true,
                   enlargeCenterPage: true,
                   aspectRatio: 2.0,
-                  onPageChanged: (index, reason) {
-                    setState(() {});
-                  },
                 ),
               ),
               SizedBox(height: 15),
-              // Grid de categorías con espacio para las imágenes de productos
+              // Grid de categorías
               Expanded(
                 child: Container(
                   padding: EdgeInsets.all(16.0),
@@ -166,10 +175,9 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
                     itemBuilder: (context, index) {
                       String category = categories[index];
                       return GestureDetector(
-                        onTap: () => _navigateToCategory(category), // Añadimos la navegación
+                        onTap: () => _navigateToCategory(category),
                         child: Column(
                           children: [
-                            // Container para la imagen con borde verde
                             Container(
                               height: 120,
                               width: 120,
@@ -178,7 +186,7 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
                                 borderRadius: BorderRadius.circular(15),
                                 border: Border.all(
                                   color: Colors.green[900]!,
-                                  width: 3.0, // Grosor del borde verde
+                                  width: 3.0,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -219,15 +227,21 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.menu),
             label: 'Menú',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person), // Cambiamos aquí el icono del usuario
-            label: 'Usuario',
-          ),
+          if (isRegistered) // Mostramos el botón de usuario solo si el usuario está registrado
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Usuario',
+            )
+          else
+            BottomNavigationBarItem(
+              icon: Icon(Icons.info),
+              label: 'Más',
+            ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.orange,

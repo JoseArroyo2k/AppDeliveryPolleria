@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'cart_provider.dart'; // Importamos el Provider
+import 'cart_provider.dart';
+import 'ConfirmacionCompra.dart';
+import 'user_provider.dart'; // Importamos el UserProvider
 
 class CarritoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Imprimimos los datos del usuario cuando se carga el carrito
+    print('Datos del usuario en carrito:');
+    print('Nombre: ${userProvider.nombre}');
+    print('Dirección: ${userProvider.direccion}');
+    print('Correo: ${userProvider.correo}');
+    print('Número: ${userProvider.numero}');
 
     return Scaffold(
       appBar: AppBar(
@@ -117,7 +127,14 @@ class CarritoPage extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Lógica para proceder al pago o finalizar la compra
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConfirmacionCompraPage(
+                        isRegistered: true,
+                      ),
+                    ),
+                  );
                 },
                 child: Text('Pagar'),
                 style: ElevatedButton.styleFrom(

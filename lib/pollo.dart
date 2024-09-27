@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'detalle.dart'; // Importamos la nueva página de detalles del producto
+import 'detalle.dart'; // Importamos la página de detalles
 import 'carrito.dart'; // Importa la página de carrito
 
 class PolloPage extends StatefulWidget {
@@ -45,7 +45,7 @@ class _PolloPageState extends State<PolloPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CarritoPage()), // Lleva al carrito
+                MaterialPageRoute(builder: (context) => CarritoPage()), 
               );
             },
           ),
@@ -58,7 +58,6 @@ class _PolloPageState extends State<PolloPage> {
               itemBuilder: (context, index) {
                 var product = polloProducts[index];
                 try {
-                  // Manejar valores nulos asignando valores por defecto
                   var nombre = product['Nombre'] ?? 'Producto sin nombre';
                   var descripcion = product['Descripcion'] ?? 'Sin descripción';
                   var precio = product['Precio']?.toString() ?? 'Precio no disponible';
@@ -79,6 +78,9 @@ class _PolloPageState extends State<PolloPage> {
                             height: 100,
                             width: 100,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.error); // Muestra un icono en caso de error
+                            },
                           ),
                         ),
                         title: Text(
@@ -102,7 +104,6 @@ class _PolloPageState extends State<PolloPage> {
                           ),
                         ),
                         onTap: () {
-                          // Navegación a la pantalla de detalles del producto
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -119,7 +120,6 @@ class _PolloPageState extends State<PolloPage> {
                     ),
                   );
                 } catch (e) {
-                  // Si ocurre un error, imprimimos los detalles del producto
                   print('Error con el producto: $product');
                   print('Error específico: $e');
                   return Padding(
@@ -132,25 +132,6 @@ class _PolloPageState extends State<PolloPage> {
                 }
               },
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'Menú',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Usuario',
-          ),
-        ],
-        currentIndex: 0,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        onTap: (index) {
-          // Lógica para navegar entre el menú y el perfil de usuario
-        },
-      ),
     );
   }
 }
