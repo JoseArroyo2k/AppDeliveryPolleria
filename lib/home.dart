@@ -1,31 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'pollo.dart'; // Importamos el archivo de la categoría Pollo
-import 'carrito.dart'; // Importamos el archivo de carrito
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
+import 'pollo.dart';
+import 'carne.dart';
+import 'carne-personal.dart';
+import 'caldos.dart';
+import 'carrito.dart';
+import 'platos_criollos.dart';
+import 'bebidasnaturales.dart';
+import 'guarniciones.dart';
+import 'postres.dart';
+import 'promociones.dart';
+import 'mundoverde.dart';
+import 'usuario.dart';
 
-class CategoryHomePage extends StatefulWidget {
-  @override
-  _CategoryHomePageState createState() => _CategoryHomePageState();
-}
-
-class _CategoryHomePageState extends State<CategoryHomePage> {
-  int _selectedIndex = 0;
-  bool isRegistered = false; // Inicialmente asumimos que es invitado
-  String userName = 'Invitado'; // Nombre por defecto para invitados
-  final CarouselController _carouselController = CarouselController();
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Recibimos el argumento desde el LoginPage
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    if (args != null) {
-      isRegistered = args['isRegistered'] ?? false;
-      userName = args['userName'] ?? 'Invitado';
-    }
-  }
-
-  // Lista de categorías
+class CategoryHomePage extends StatelessWidget {
   final List<String> categories = [
     'Pollo a la brasa',
     'Carnes y parrillas',
@@ -39,13 +28,6 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
     'Mundo verde',
   ];
 
-  // Lista de promociones
-  final List<String> promotionImages = [
-    'assets/images/categorias/promociones/promo2.png',
-    'assets/images/categorias/promociones/promo1.png',
-  ];
-
-  // Lista de imágenes de categorías
   final Map<String, String> categoryImages = {
     'Pollo a la brasa': 'assets/images/pollo.png',
     'Carnes y parrillas': 'assets/images/carnes.png',
@@ -59,20 +41,32 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
     'Mundo verde': 'assets/images/verde.png',
   };
 
-  // Función para manejar la navegación a las páginas de categorías
-  void _navigateToCategory(String category) {
+  void _navigateToCategory(BuildContext context, String category) {
     if (category == 'Pollo a la brasa') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PolloPage()), // Navega a la pantalla de Pollo
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PolloPage()));
+    } else if (category == 'Carnes y parrillas') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CarnePage()));
+    } else if (category == 'Carnes (platos personales)') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CarnePersonalPage()));
+    } else if (category == 'Caldo de gallina') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CaldosPage()));
+    } else if (category == 'Platos criollos') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PlatosCriollosPage()));
+    } else if (category == 'Bebidas naturales') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => BebidasNaturalesPage()));
+    } else if (category == 'Guarniciones') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => GuarnicionesPage()));
+    } else if (category == 'Postres') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PostresPage()));
+    } else if (category == 'Promociones') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PromocionesPage()));
+    } else if (category == 'Mundo verde') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MundoVerdePage()));
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _navigateToUserPage(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => UsuarioPage()));
   }
 
   @override
@@ -80,22 +74,19 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.green[900],
+        backgroundColor: Color(0xFF800020),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Bienvenido: $userName', // Mostramos el nombre del usuario o "Invitado"
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              'Categorías',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
             ),
             Spacer(),
             IconButton(
-              icon: Icon(Icons.shopping_cart), // Cambiamos aquí el carrito
+              icon: Icon(Icons.shopping_cart, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CarritoPage()), // Navega al carrito
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CarritoPage()));
               },
             ),
           ],
@@ -103,58 +94,23 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
         elevation: 0,
       ),
       body: Container(
-        color: Colors.green[900],
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Slider de promociones
-              CarouselSlider(
-                items: promotionImages.map((imagePath) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 1,
-                              blurRadius: 6,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            imagePath,
-                            fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.width,
-                            height: 270.0,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  autoPlay: true,
-                  enlargeCenterPage: true,
-                  aspectRatio: 2.0,
-                ),
-              ),
-              SizedBox(height: 15),
-              // Grid de categorías
-              Expanded(
+          child: ListView.builder(
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              String category = categories[index];
+              return GestureDetector(
+                onTap: () => _navigateToCategory(context, category),
                 child: Container(
-                  padding: EdgeInsets.all(16.0),
+                  margin: EdgeInsets.symmetric(vertical: 10.0),
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  height: MediaQuery.of(context).size.height * 0.18,
                   decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Color(0xFF800020), width: 4.0),
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
@@ -164,90 +120,54 @@ class _CategoryHomePageState extends State<CategoryHomePage> {
                       ),
                     ],
                   ),
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 15,
-                      mainAxisSpacing: 15,
-                      childAspectRatio: 0.85,
-                    ),
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      String category = categories[index];
-                      return GestureDetector(
-                        onTap: () => _navigateToCategory(category),
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 120,
-                              width: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.orange[100],
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: Colors.green[900]!,
-                                  width: 3.0,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    spreadRadius: 2,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(
-                                  categoryImages[category]!,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              category,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[900],
-                              ),
-                            ),
-                          ],
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset(
+                            categoryImages[category]!,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      );
-                    },
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: Text(
+                          category,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: 'Lora',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'Menú',
-          ),
-          if (isRegistered) // Mostramos el botón de usuario solo si el usuario está registrado
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Usuario',
-            )
-          else
-            BottomNavigationBarItem(
-              icon: Icon(Icons.info),
-              label: 'Más',
-            ),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Carta'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Usuario'),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        onTap: _onItemTapped,
+        currentIndex: 0,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white.withOpacity(0.6),
+        backgroundColor: Color(0xFF800020),
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        onTap: (index) {
+          if (index == 1) {
+            _navigateToUserPage(context);
+          }
+        },
       ),
     );
   }

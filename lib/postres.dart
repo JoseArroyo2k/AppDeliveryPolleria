@@ -3,33 +3,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'detalle.dart'; // Importamos la página de detalles
 import 'carrito.dart'; // Importa la página de carrito
 
-class PolloPage extends StatefulWidget {
+class PostresPage extends StatefulWidget {
   @override
-  _PolloPageState createState() => _PolloPageState();
+  _PostresPageState createState() => _PostresPageState();
 }
 
-class _PolloPageState extends State<PolloPage> {
+class _PostresPageState extends State<PostresPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<Map<String, dynamic>> polloProducts = [];
+  List<Map<String, dynamic>> postresProducts = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchPolloProducts();
+    _fetchPostresProducts();
   }
 
-  void _fetchPolloProducts() async {
+  void _fetchPostresProducts() async {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('Productos')
-          .where('Categoria', isEqualTo: 'Pollo')
+          .where('Categoria', isEqualTo: 'Postres')
           .get();
 
       setState(() {
-        polloProducts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        postresProducts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
       });
     } catch (e) {
-      print('Error al obtener productos de la categoría Pollo: $e');
+      print('Error al obtener productos de la categoría Postres: $e');
     }
   }
 
@@ -38,13 +38,13 @@ class _PolloPageState extends State<PolloPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Pollo a la brasa',
+          'Postres',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Lora'),
         ),
         backgroundColor: Color(0xFF800020), // Fondo guinda para la cabecera
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white), // Carrito en blanco
+            icon: Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -54,14 +54,15 @@ class _PolloPageState extends State<PolloPage> {
           ),
         ],
       ),
-      body: polloProducts.isEmpty
+      body: postresProducts.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: polloProducts.length,
+              itemCount: postresProducts.length,
               itemBuilder: (context, index) {
-                var product = polloProducts[index];
+                var product = postresProducts[index];
                 try {
                   var nombre = product['Nombre'] ?? 'Producto sin nombre';
+                  var descripcion = product['Descripcion'] ?? 'Sin descripción';
                   var precio = product['Precio']?.toString() ?? 'Precio no disponible';
                   var imagenUrl = product['Imagen'] ?? 'https://via.placeholder.com/150';
 
@@ -74,18 +75,19 @@ class _PolloPageState extends State<PolloPage> {
                           MaterialPageRoute(
                             builder: (context) => DetalleProductoPage(
                               nombre: nombre,
-                              descripcion: product['Descripcion'] ?? '',
-                              precio: double.parse(precio),
+                              descripcion: descripcion,
+                              precio: double.tryParse(precio) ?? 0.0,
                               imagenUrl: imagenUrl,
                             ),
                           ),
                         );
                       },
                       child: Container(
+                        height: MediaQuery.of(context).size.height * 0.21,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Color(0xFF800020), width: 4.0), // Borde guinda más grueso
-                          color: Colors.white, // Fondo blanco
+                          border: Border.all(color: Color(0xFF800020), width: 3.0),
+                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.1),
@@ -95,57 +97,64 @@ class _PolloPageState extends State<PolloPage> {
                             ),
                           ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                        child: Row(
                           children: [
-                            // Imagen del producto
                             ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
-                              ),
+                              borderRadius: BorderRadius.circular(15),
                               child: Image.network(
                                 imagenUrl,
-                                height: MediaQuery.of(context).size.height * 0.25, // Imagen más grande
-                                width: double.infinity,
+                                height: double.infinity,
+                                width: MediaQuery.of(context).size.width * 0.35,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Icon(Icons.error, color: Colors.red); // Icono en caso de error
+                                  return Icon(Icons.error, color: Colors.red);
                                 },
                               ),
                             ),
-                            // Recuadro para el nombre y el precio
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFF9F6F6), // Fondo gris claro para el texto
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(15),
-                                  bottomRight: Radius.circular(15),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      nombre,
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Lora',
+                                        color: Color(0xFF800020),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      descripcion,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: 'Lora',
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'S/ $precio',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Lora',
+                                        color: Color(0xFF800020),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    nombre,
-                                    style: TextStyle(
-                                      fontSize: 24, // Tamaño de fuente aumentado
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Lora',
-                                      color: Color(0xFF800020), // Texto guinda
-                                    ),
-                                  ),
-                                  Text(
-                                    'S/ $precio',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Lora',
-                                      color: Color(0xFF800020), // Texto guinda
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ],

@@ -9,10 +9,9 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green[700]!, Colors.green[900]!],
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondopollo.jpg'), // Fondo de la imagen
+            fit: BoxFit.cover, // Ajuste para cubrir toda la pantalla
           ),
         ),
         child: SafeArea(
@@ -25,31 +24,32 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo
+                      // Logo aumentado en tamaño
                       Image.asset(
                         'assets/images/Logo.png',
-                        height: 120,
+                        height: 180, // Aumentado en 50%
                       ),
                       SizedBox(height: 20),
-                      // App name
+                      // App name (Gran Chicken) con tamaño aumentado
                       Text(
                         'Gran Chicken',
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: 52, // Tamaño aumentado en 30%
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter', // Usar fuente Inter
                         ),
                       ),
                       SizedBox(height: 20),
-                      // Description
+                      // Descripción con mayor tamaño y grosor
                       Text(
                         'Disfruta toda la carta de pollos a la brasa, carnes, caldos y demás',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.8),
-                          fontFamily: 'Poppins',
+                          fontSize: 18, // Tamaño aumentado
+                          color: Colors.white.withOpacity(0.9), // Mayor contraste
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600, // Letras más gruesas
                           height: 1.5,
                         ),
                       ),
@@ -66,12 +66,13 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Botón de Iniciar Sesión con color guinda
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange, // Corregido aquí
+                          backgroundColor: Color(0xFF800020), // Color guinda
                           padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -82,18 +83,21 @@ class HomePage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.white,
-                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold, // Letras gruesas
+                            fontFamily: 'Inter',
                           ),
                         ),
                       ),
                       SizedBox(height: 12),
+                      // Botón de Registrarse con letras blancas y fondo guinda
                       OutlinedButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/register');
                         },
                         style: OutlinedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(color: Colors.orange, width: 2),
+                          backgroundColor: Colors.white, // Fondo blanco
+                          side: BorderSide(color: Color(0xFF800020), width: 2), // Borde guinda
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -102,25 +106,14 @@ class HomePage extends StatelessWidget {
                           'Regístrate',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.orange,
-                            fontFamily: 'Poppins',
+                            color: Color(0xFF800020), // Letras guinda
+                            fontWeight: FontWeight.bold, // Letras gruesas
+                            fontFamily: 'Inter',
                           ),
                         ),
                       ),
                       SizedBox(height: 12),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/homepage');
-                        },
-                        child: Text(
-                          'Acceder como invitado',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white.withOpacity(0.8),
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ),
+                      // El botón de "Acceder como invitado" ya no aparecerá
                     ],
                   ),
                 ),

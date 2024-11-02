@@ -31,13 +31,6 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
   void _autocompletarDatos() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     
-    // Asegurarse de que los datos se imprimen en consola para depuración
-    print('Autocompletando datos de usuario...');
-    print('Nombre: ${userProvider.nombre}');
-    print('Dirección: ${userProvider.direccion}');
-    print('Correo: ${userProvider.correo}');
-    print('Número: ${userProvider.numero}');
-    
     _nombreController.text = userProvider.nombre;
     _direccionController.text = userProvider.direccion;
     _correoController.text = userProvider.correo;
@@ -69,8 +62,15 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Confirmación de compra'),
-        backgroundColor: Colors.green[900],
+        title: Text(
+          'Confirmación de compra',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lora', // Fuente Lora para el título
+          ),
+        ),
+        backgroundColor: Color(0xFF800020), // Fondo guinda
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -81,7 +81,13 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
               controller: _nombreController,
               decoration: InputDecoration(
                 labelText: 'Nombre',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Color(0xFF800020), fontFamily: 'Lora'), // Color guinda para el label
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
               ),
             ),
             SizedBox(height: 16),
@@ -89,7 +95,13 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
               controller: _direccionController,
               decoration: InputDecoration(
                 labelText: 'Dirección',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Color(0xFF800020), fontFamily: 'Lora'), // Color guinda para el label
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
               ),
             ),
             SizedBox(height: 16),
@@ -97,7 +109,13 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
               controller: _correoController,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Color(0xFF800020), fontFamily: 'Lora'), // Color guinda para el label
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
               ),
             ),
             SizedBox(height: 16),
@@ -106,11 +124,20 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 labelText: 'Número de teléfono',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Color(0xFF800020), fontFamily: 'Lora'), // Color guinda para el label
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF800020), width: 2.0), // Borde guinda
+                ),
               ),
             ),
             SizedBox(height: 16),
-            Text('Método de pago', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Método de pago',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Lora'), // Fuente Lora
+            ),
             ListTile(
               title: const Text('Pago en efectivo (contraentrega)'),
               leading: Radio<String>(
@@ -140,11 +167,16 @@ class _ConfirmacionCompraPageState extends State<ConfirmacionCompraPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _confirmarPedido,
-                child: Text('Confirmar pedido'),
+                child: Text(
+                  'CONFIRMAR PEDIDO',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Lora', // Fuente Lora para el botón
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15),
-                  backgroundColor: Colors.orange,
-                  textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  backgroundColor: Color(0xFF800020), // Fondo guinda
                 ),
               ),
             ),

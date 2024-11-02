@@ -21,6 +21,7 @@ dependencies:
 
 
 dev_dependencies:
+
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
@@ -42,3 +43,16 @@ flutter:
     - assets/images/postre.png
     - assets/images/promo.png
     - assets/images/verde.png
+    - assets/images/fondopollo.jpg
+
+  
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter_18pt-Regular.ttf
+        - asset: assets/fonts/Inter_18pt-SemiBold.ttf
+        - asset: assets/fonts/Inter_24pt-Bold.ttf
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Bold.ttf
+        - asset: assets/fonts/Lora-Regular.ttf

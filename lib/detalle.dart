@@ -40,55 +40,89 @@ class _DetalleProductoPageState extends State<DetalleProductoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.nombre),
-        backgroundColor: Colors.green[900],
+        title: Text(
+          widget.nombre,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lora',
+          ),
+        ),
+        backgroundColor: Color(0xFF800020), // Fondo guinda
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Imagen del producto
-            Image.network(
-              widget.imagenUrl,
-              height: 250,
-              width: double.infinity,
-              fit: BoxFit.cover,
+            // Imagen del producto con borde guinda y tamaño más grande
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFF800020), width: 3), // Borde guinda
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  widget.imagenUrl,
+                  height: 350, // Aumentamos la altura de la imagen
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             SizedBox(height: 20),
-            // Nombre del producto
+            // Nombre del producto en mayúsculas y color guinda
             Text(
-              widget.nombre,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              widget.nombre.toUpperCase(),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF800020), // Color guinda
+                fontFamily: 'Lora', // Usamos la fuente Lora
+              ),
             ),
             SizedBox(height: 10),
-            // Descripción del producto
+            // Descripción con texto más grande
             Text(
               widget.descripcion,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 18), // Aumentamos el tamaño de la descripción
             ),
             SizedBox(height: 20),
-            // Precio y botones para controlar la cantidad
+            // Precio y botones para controlar la cantidad con estilo mejorado
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
                   icon: Icon(Icons.remove),
                   onPressed: _reducirCantidad,
+                  color: Color(0xFF800020), // Color guinda para los botones
                 ),
-                Text(
-                  '$_cantidad',
-                  style: TextStyle(fontSize: 20),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFF800020), width: 2), // Borde guinda alrededor del número
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '$_cantidad',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF800020), // Color guinda
+                    ),
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.add),
                   onPressed: _aumentarCantidad,
+                  color: Color(0xFF800020), // Color guinda para los botones
                 ),
               ],
             ),
             SizedBox(height: 20),
-            // Botón de añadir o actualizar el carrito
+            // Botón de añadir al carrito con estilo guinda y letras blancas
             ElevatedButton.icon(
               onPressed: () {
                 // Añadimos el producto al carrito utilizando el Provider y pasando la cantidad seleccionada
@@ -100,10 +134,19 @@ class _DetalleProductoPageState extends State<DetalleProductoPage> {
                 );
                 Navigator.pop(context); // Cierra la ventana al añadir/actualizar
               },
-              icon: Icon(Icons.shopping_cart),
-              label: Text('Añadir al carrito'),
+              icon: Icon(
+                Icons.shopping_cart,
+                color: Colors.white, // Ícono del carrito en blanco
+              ),
+              label: Text(
+                'AÑADIR AL CARRITO',
+                style: TextStyle(
+                  color: Colors.white, // Letras blancas
+                  fontFamily: 'Lora',
+                ),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: Color(0xFF800020), // Fondo guinda
               ),
             ),
           ],
