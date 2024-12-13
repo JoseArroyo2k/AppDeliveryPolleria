@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'ConfirmacionCompra.dart';
-import 'user_provider.dart';
 
 class CarritoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Obtener tamaño de pantalla
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -17,7 +19,7 @@ class CarritoPage extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontFamily: 'Lora', // Fuente Lora
+            fontFamily: 'Lora',
           ),
         ),
         backgroundColor: Color(0xFF800020), // Fondo guinda
@@ -31,7 +33,7 @@ class CarritoPage extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                   child: Container(
-                    height: MediaQuery.of(context).size.height * 0.18,
+                    height: screenHeight * 0.18, // Tamaño proporcional al alto de pantalla
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(color: Color(0xFF800020), width: 3.0),
@@ -47,9 +49,10 @@ class CarritoPage extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
+                        // Imagen del producto
                         Container(
                           padding: EdgeInsets.all(8.0),
-                          width: MediaQuery.of(context).size.width * 0.35,
+                          width: screenWidth * 0.3, // Proporcional al ancho de pantalla
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(15),
                             child: Image.network(
@@ -62,25 +65,28 @@ class CarritoPage extends StatelessWidget {
                           ),
                         ),
                         Expanded(
+                          flex: 2,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Nombre del producto (Texto flexible con ellipsis)
                                 Flexible(
                                   child: Text(
                                     item.nombre,
                                     style: TextStyle(
-                                      fontSize: 20,
+                                      fontSize: screenWidth * 0.045, // Escala según ancho
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF800020),
                                       fontFamily: 'Lora',
                                     ),
-                                    overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis, // Trunca texto largo
                                   ),
                                 ),
                                 SizedBox(height: 4),
+                                // Botones de cantidad
                                 Row(
                                   children: [
                                     IconButton(
@@ -101,7 +107,7 @@ class CarritoPage extends StatelessWidget {
                                       child: Text(
                                         '${item.cantidad}',
                                         style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: screenWidth * 0.045, // Escala según ancho
                                           fontWeight: FontWeight.bold,
                                           color: Color(0xFF800020),
                                         ),
@@ -117,11 +123,12 @@ class CarritoPage extends StatelessWidget {
                                   ],
                                 ),
                                 SizedBox(height: 4),
+                                // Precio total
                                 Flexible(
                                   child: Text(
                                     'S/ ${item.precio * item.cantidad}',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: screenWidth * 0.04, // Escala según ancho
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF800020),
                                       fontFamily: 'Lora',
@@ -132,6 +139,7 @@ class CarritoPage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        // Botón de eliminar
                         IconButton(
                           icon: Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
@@ -153,7 +161,7 @@ class CarritoPage extends StatelessWidget {
               Text(
                 'Total: S/ ${cart.totalAmount.toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: screenWidth * 0.05, // Escala según ancho
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'Lora',
@@ -175,6 +183,7 @@ class CarritoPage extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Lora',
+                    fontSize: screenWidth * 0.045, // Escala según ancho
                   ),
                 ),
                 style: ElevatedButton.styleFrom(

@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'googlemaps_picker.dart';
+import 'user_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -18,7 +21,9 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
-  TextEditingController _birthdayController = TextEditingController(); // Nuevo campo para cumpleaños
+  TextEditingController _birthdayController = TextEditingController();
+
+  Map<String, dynamic>? _selectedLocation;
 
   // Función para encriptar la contraseña
   String _hashPassword(String password) {
@@ -33,21 +38,67 @@ class _RegisterPageState extends State<RegisterPage> {
     return regex.hasMatch(date);
   }
 
-  // Función para guardar el usuario en Firestore
+  // Método para seleccionar la ubicación usando GoogleMapsLocationPicker
+  Future<void> _selectLocation() async {
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GoogleMapsLocationPicker(),
+          fullscreenDialog: true
+        ),
+      );
+
+      if (result != null) {
+        setState(() {
+          _selectedLocation = result;
+          _addressController.text = result['address'] ?? 
+            'Lat: ${result['latitude']}, Lng: ${result['longitude']}';
+        });
+      }
+    } catch (e) {
+      print('Error al seleccionar la ubicación: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ocurrió un error al seleccionar la ubicación.')),
+      );
+    }
+  }
+
+  // Método para registrar al usuario en Firestore
   void _register() async {
     if (_formKey.currentState!.validate()) {
-      if (_isValidDateFormat(_birthdayController.text)) { // Verificación del formato de fecha
+      if (_isValidDateFormat(_birthdayController.text)) {
+        if (_selectedLocation == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Por favor selecciona tu ubicación en el mapa')),
+          );
+          return;
+        }
+
         try {
           await _firestore.collection('Usuarios').add({
             'nombre': _nameController.text,
             'email': _emailController.text,
             'telefono': _phoneController.text,
             'direccion': _addressController.text,
+            'ubicacion_coordenadas': {
+              'latitude': _selectedLocation!['latitude'],
+              'longitude': _selectedLocation!['longitude']
+            },
+            'ubicacion_nombre': _selectedLocation!['address'] ?? 'Ubicación no especificada',
             'cumpleanos': _birthdayController.text,
             'password': _hashPassword(_passwordController.text),
             'tipo': 'cliente',
           });
-          print('Usuario guardado correctamente en Firestore');
+
+          // Actualizar UserProvider
+          Provider.of<UserProvider>(context, listen: false).setUserData(
+            _nameController.text,
+            _addressController.text,
+            _emailController.text,
+            _phoneController.text,
+            _birthdayController.text
+          );
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Usuario registrado exitosamente')),
@@ -66,16 +117,46 @@ class _RegisterPageState extends State<RegisterPage> {
           SnackBar(content: Text('Formato de fecha inválido')),
         );
       }
-    } else {
-      print('Formulario no válido');
     }
+  }
+
+  // Método para construir TextFields
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData prefixIcon,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      validator: validator,
+      inputFormatters: inputFormatters,
+      decoration: InputDecoration(
+        prefixIcon: Icon(prefixIcon, color: Color(0xFF800020)),
+        hintText: hintText,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Container(
-        height: MediaQuery.of(context).size.height,
+        height: screenHeight,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondopollo.jpg'),
@@ -85,11 +166,14 @@ class _RegisterPageState extends State<RegisterPage> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.08,
+                vertical: screenHeight * 0.05,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Align(
                       alignment: Alignment.centerLeft,
@@ -100,48 +184,42 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                       ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
                     Text(
                       'Crea tu cuenta',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: screenWidth * 0.08,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
                     Text(
                       'Regístrate para comenzar',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: screenWidth * 0.045,
                         color: Colors.white.withOpacity(0.8),
                       ),
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: screenHeight * 0.05),
                     // Campo de nombre
-                    TextFormField(
+                    _buildTextField(
                       controller: _nameController,
+                      hintText: 'Nombre',
+                      prefixIcon: Icons.person,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'El nombre es requerido';
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.person, color: Color(0xFF800020)),
-                        hintText: 'Nombre',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
                     // Campo de correo
-                    TextFormField(
+                    _buildTextField(
                       controller: _emailController,
+                      hintText: 'Correo electrónico',
+                      prefixIcon: Icons.email,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'El correo es requerido';
@@ -151,21 +229,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email, color: Color(0xFF800020)),
-                        hintText: 'Correo electrónico',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
                     // Campo de teléfono
-                    TextFormField(
+                    _buildTextField(
                       controller: _phoneController,
+                      hintText: 'Teléfono',
+                      prefixIcon: Icons.phone,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -176,44 +246,45 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.phone, color: Color(0xFF800020)),
-                        hintText: 'Teléfono',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    // Campo de ubicación
+                    GestureDetector(
+                      onTap: _selectLocation,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _addressController,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.location_on, color: Color(0xFF800020)),
+                            hintText: 'Selecciona tu ubicación',
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.map, color: Color(0xFF800020)),
+                              onPressed: _selectLocation,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (_selectedLocation == null) {
+                              return 'La ubicación es requerida';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
-                    // Campo de dirección
-                    TextFormField(
-                      controller: _addressController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'La dirección es requerida';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.home, color: Color(0xFF800020)),
-                        hintText: 'Dirección',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    // Campo de cumpleaños con inserción automática de '/'
-                    TextFormField(
+                    SizedBox(height: screenHeight * 0.02),
+                    // Campo de cumpleaños
+                    _buildTextField(
                       controller: _birthdayController,
+                      hintText: 'Cumpleaños (dd/mm/yyyy)',
+                      prefixIcon: Icons.cake,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(10), // Limita a 10 caracteres
+                        LengthLimitingTextInputFormatter(10),
                         TextInputFormatter.withFunction((oldValue, newValue) {
                           String text = newValue.text.replaceAll('/', '');
                           if (text.length >= 2) text = text.substring(0, 2) + '/' + text.substring(2);
@@ -224,21 +295,13 @@ class _RegisterPageState extends State<RegisterPage> {
                           );
                         }),
                       ],
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.cake, color: Color(0xFF800020)),
-                        hintText: 'Cumpleaños (dd/mm/yyyy)',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
                     // Campo de contraseña
-                    TextFormField(
+                    _buildTextField(
                       controller: _passwordController,
+                      hintText: 'Contraseña',
+                      prefixIcon: Icons.lock,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -246,37 +309,24 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock, color: Color(0xFF800020)),
-                        hintText: 'Contraseña',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
+                    ),
+                    SizedBox(height: screenHeight * 0.04),
+                    // Botón de registro
+                    ElevatedButton(
+                      onPressed: _register,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                        backgroundColor: Color(0xFF800020),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(screenWidth * 0.05),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 40),
-                    // Botón de registro
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _register,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          backgroundColor: Color(0xFF800020),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Regístrate',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      child: Text(
+                        'Regístrate',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.05,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

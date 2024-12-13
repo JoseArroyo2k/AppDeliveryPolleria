@@ -11,6 +11,7 @@ class BebidasNaturalesPage extends StatefulWidget {
 class _BebidasNaturalesPageState extends State<BebidasNaturalesPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> bebidasProducts = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -20,31 +21,200 @@ class _BebidasNaturalesPageState extends State<BebidasNaturalesPage> {
 
   void _fetchBebidasProducts() async {
     try {
+      setState(() => _isLoading = true);
       QuerySnapshot snapshot = await _firestore
           .collection('Productos')
           .where('Categoria', isEqualTo: 'Bebidasnaturales')
           .get();
 
       setState(() {
-        bebidasProducts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        bebidasProducts =
+            snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        _isLoading = false;
       });
     } catch (e) {
       print('Error al obtener productos de la categoría Bebidas Naturales: $e');
+      setState(() => _isLoading = false);
     }
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> product, double screenWidth, double screenHeight) {
+    String nombre = product['Nombre'] ?? 'Producto sin nombre';
+    String descripcion = product['Descripcion'] ?? 'Sin descripción';
+    String precio = product['Precio']?.toString() ?? 'Precio no disponible';
+    String imagenUrl = product['Imagen'] ?? '';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetalleProductoPage(
+                  nombre: nombre,
+                  descripcion: descripcion,
+                  precio: double.tryParse(precio) ?? 0.0,
+                  imagenUrl: imagenUrl,
+                ),
+              ),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        'assets/images/cargando.png',
+                        fit: BoxFit.cover,
+                      ),
+                      Image.network(
+                        imagenUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: const Color(0xFF800020),
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[100],
+                            child: const Center(
+                              child: Icon(
+                                Icons.error_outline,
+                                color: Color(0xFF800020),
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 12.0,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.8),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                          child: Text(
+                            'S/ $precio',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 1),
+                                  blurRadius: 3.0,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      nombre,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.045,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Lora',
+                        color: const Color(0xFF800020),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      descripcion,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.035,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text(
           'Bebidas Naturales',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Lora'),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lora',
+            fontSize: screenWidth * 0.055,
+          ),
         ),
-        backgroundColor: Color(0xFF800020), // Fondo guinda para la cabecera
+        backgroundColor: const Color(0xFF800020),
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
+            icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -54,126 +224,51 @@ class _BebidasNaturalesPageState extends State<BebidasNaturalesPage> {
           ),
         ],
       ),
-      body: bebidasProducts.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: bebidasProducts.length,
-              itemBuilder: (context, index) {
-                var product = bebidasProducts[index];
-                try {
-                  var nombre = product['Nombre'] ?? 'Producto sin nombre';
-                  var descripcion = product['Descripcion'] ?? 'Sin descripción';
-                  var precio = product['Precio']?.toString() ?? 'Precio no disponible';
-                  var imagenUrl = product['Imagen'] ?? 'https://via.placeholder.com/150';
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetalleProductoPage(
-                              nombre: nombre,
-                              descripcion: descripcion,
-                              precio: double.tryParse(precio) ?? 0.0,
-                              imagenUrl: imagenUrl,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF800020),
+              ),
+            )
+          : RefreshIndicator(
+              color: const Color(0xFF800020),
+              onRefresh: () async {
+                await Future.delayed(const Duration(milliseconds: 1500));
+                _fetchBebidasProducts();
+              },
+              child: bebidasProducts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.local_drink,
+                            size: screenWidth * 0.15,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No hay productos disponibles',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: Colors.grey,
                             ),
                           ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      itemCount: bebidasProducts.length,
+                      itemBuilder: (context, index) {
+                        return _buildProductCard(
+                          bebidasProducts[index],
+                          screenWidth,
+                          screenHeight,
                         );
                       },
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.21,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Color(0xFF800020), width: 3.0),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 2,
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.network(
-                                imagenUrl,
-                                height: double.infinity,
-                                width: MediaQuery.of(context).size.width * 0.35,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(Icons.error, color: Colors.red);
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      nombre,
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Lora',
-                                        color: Color(0xFF800020),
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      descripcion,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: 'Lora',
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'S/ $precio',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Lora',
-                                        color: Color(0xFF800020),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
-                  );
-                } catch (e) {
-                  print('Error con el producto: $product');
-                  print('Error específico: $e');
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Error al mostrar el producto',
-                      style: TextStyle(color: Colors.red, fontSize: 16),
-                    ),
-                  );
-                }
-              },
             ),
     );
   }
