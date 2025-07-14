@@ -80,13 +80,19 @@ class _PolloPageState extends State<PolloPage> {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 child: AspectRatio(
-                  aspectRatio: 16/9,
+                  aspectRatio: 16 / 9,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        'assets/images/cargando.png',
-                        fit: BoxFit.cover,
+                      Center(
+                        child: SizedBox(
+                          width: 100, // Ajusta el tamaño del logo
+                          height: 100,
+                          child: Image.asset(
+                            'assets/images/cargando.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                       Image.network(
                         imagenUrl,
@@ -97,8 +103,8 @@ class _PolloPageState extends State<PolloPage> {
                             child: CircularProgressIndicator(
                               color: const Color(0xFF800020),
                               value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded / 
-                                    loadingProgress.expectedTotalBytes!
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           );
@@ -224,51 +230,51 @@ class _PolloPageState extends State<PolloPage> {
         ],
       ),
       body: _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF800020),
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF800020),
+              ),
+            )
+          : RefreshIndicator(
+              color: const Color(0xFF800020),
+              onRefresh: () async {
+                await Future.delayed(const Duration(milliseconds: 1500));
+                _fetchPolloProducts();
+              },
+              child: polloProducts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.restaurant_menu,
+                            size: screenWidth * 0.15,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No hay productos disponibles',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      itemCount: polloProducts.length,
+                      itemBuilder: (context, index) {
+                        return _buildProductCard(
+                          polloProducts[index],
+                          screenWidth,
+                          screenHeight,
+                        );
+                      },
+                    ),
             ),
-          )
-        : RefreshIndicator(
-            color: const Color(0xFF800020),
-            onRefresh: () async {
-              await Future.delayed(const Duration(milliseconds: 1500));
-              _fetchPolloProducts();
-            },
-            child: polloProducts.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.restaurant_menu,
-                        size: screenWidth * 0.15,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No hay productos disponibles',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  itemCount: polloProducts.length,
-                  itemBuilder: (context, index) {
-                    return _buildProductCard(
-                      polloProducts[index],
-                      screenWidth,
-                      screenHeight,
-                    );
-                  },
-                ),
-          ),
     );
   }
 }

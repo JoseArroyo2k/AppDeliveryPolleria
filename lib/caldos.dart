@@ -85,9 +85,15 @@ class _CaldosPageState extends State<CaldosPage> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        'assets/images/cargando.png',
-                        fit: BoxFit.cover,
+                      Center(
+                        child: SizedBox(
+                          width: 100, // Ajusta el tamaño del logo de carga
+                          height: 100,
+                          child: Image.asset(
+                            'assets/images/cargando.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                       Image.network(
                         imagenUrl,

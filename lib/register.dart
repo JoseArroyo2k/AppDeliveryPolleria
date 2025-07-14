@@ -24,6 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _birthdayController = TextEditingController();
 
   Map<String, dynamic>? _selectedLocation;
+  bool _obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
 
   // Función para encriptar la contraseña
   String _hashPassword(String password) {
@@ -32,10 +33,16 @@ class _RegisterPageState extends State<RegisterPage> {
     return digest.toString();
   }
 
-  // Validación de formato de fecha
-  bool _isValidDateFormat(String date) {
-    final regex = RegExp(r'^\d{2}/\d{2}/\d{4}$');
-    return regex.hasMatch(date);
+  // Validación de número de teléfono
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El teléfono es requerido';
+    }
+    final phoneRegex = RegExp(r'^9\d{8}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'El teléfono debe comenzar con 9 y tener 9 dígitos';
+    }
+    return null;
   }
 
   // Método para seleccionar la ubicación usando GoogleMapsLocationPicker
@@ -45,15 +52,15 @@ class _RegisterPageState extends State<RegisterPage> {
         context,
         MaterialPageRoute(
           builder: (context) => GoogleMapsLocationPicker(),
-          fullscreenDialog: true
+          fullscreenDialog: true,
         ),
       );
 
       if (result != null) {
         setState(() {
           _selectedLocation = result;
-          _addressController.text = result['address'] ?? 
-            'Lat: ${result['latitude']}, Lng: ${result['longitude']}';
+          _addressController.text = result['address'] ??
+              'Lat: ${result['latitude']}, Lng: ${result['longitude']}';
         });
       }
     } catch (e) {
@@ -64,57 +71,114 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  // Método para mostrar el selector de fecha
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF800020),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        String day = picked.day.toString().padLeft(2, '0');
+        String month = picked.month.toString().padLeft(2, '0');
+        String year = picked.year.toString();
+        _birthdayController.text = '$day/$month/$year';
+      });
+    }
+  }
+
+  // Widget para el campo de fecha
+  Widget _buildDateField() {
+    return GestureDetector(
+      onTap: _selectDate,
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: _birthdayController,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.cake, color: Color(0xFF800020)),
+            hintText: 'Selecciona tu fecha de nacimiento',
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: Icon(Icons.calendar_today, color: Color(0xFF800020)),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'La fecha de nacimiento es requerida';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
   // Método para registrar al usuario en Firestore
   void _register() async {
     if (_formKey.currentState!.validate()) {
-      if (_isValidDateFormat(_birthdayController.text)) {
-        if (_selectedLocation == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Por favor selecciona tu ubicación en el mapa')),
-          );
-          return;
-        }
-
-        try {
-          await _firestore.collection('Usuarios').add({
-            'nombre': _nameController.text,
-            'email': _emailController.text,
-            'telefono': _phoneController.text,
-            'direccion': _addressController.text,
-            'ubicacion_coordenadas': {
-              'latitude': _selectedLocation!['latitude'],
-              'longitude': _selectedLocation!['longitude']
-            },
-            'ubicacion_nombre': _selectedLocation!['address'] ?? 'Ubicación no especificada',
-            'cumpleanos': _birthdayController.text,
-            'password': _hashPassword(_passwordController.text),
-            'tipo': 'cliente',
-          });
-
-          // Actualizar UserProvider
-          Provider.of<UserProvider>(context, listen: false).setUserData(
-            _nameController.text,
-            _addressController.text,
-            _emailController.text,
-            _phoneController.text,
-            _birthdayController.text
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Usuario registrado exitosamente')),
-          );
-
-          await Future.delayed(Duration(seconds: 1));
-          Navigator.pushReplacementNamed(context, '/home');
-        } catch (e) {
-          print('Error al guardar el usuario en Firestore: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al registrar el usuario')),
-          );
-        }
-      } else {
+      if (_selectedLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Formato de fecha inválido')),
+          SnackBar(content: Text('Por favor selecciona tu ubicación en el mapa')),
+        );
+        return;
+      }
+
+      try {
+        await _firestore.collection('Usuarios').add({
+          'nombre': _nameController.text,
+          'email': _emailController.text,
+          'telefono': _phoneController.text,
+          'direccion': _addressController.text,
+          'ubicacion_coordenadas': {
+            'latitude': _selectedLocation!['latitude'],
+            'longitude': _selectedLocation!['longitude']
+          },
+          'ubicacion_nombre': _selectedLocation!['address'] ?? 'Ubicación no especificada',
+          'cumpleanos': _birthdayController.text,
+          'password': _hashPassword(_passwordController.text),
+          'tipo': 'cliente',
+        });
+
+        Provider.of<UserProvider>(context, listen: false).setUserData(
+          _nameController.text,
+          _selectedLocation!['address'] ?? 'Ubicación no especificada',
+          _selectedLocation!['latitude'],
+          _selectedLocation!['longitude'],
+          _emailController.text,
+          _phoneController.text,
+          _birthdayController.text,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Usuario registrado exitosamente')),
+        );
+
+        await Future.delayed(Duration(seconds: 1));
+        Navigator.pushReplacementNamed(context, '/home');
+      } catch (e) {
+        print('Error al guardar el usuario en Firestore: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al registrar el usuario')),
         );
       }
     }
@@ -202,7 +266,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.05),
-                    // Campo de nombre
                     _buildTextField(
                       controller: _nameController,
                       hintText: 'Nombre',
@@ -215,7 +278,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    // Campo de correo
                     _buildTextField(
                       controller: _emailController,
                       hintText: 'Correo electrónico',
@@ -231,24 +293,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    // Campo de teléfono
                     _buildTextField(
                       controller: _phoneController,
                       hintText: 'Teléfono',
                       prefixIcon: Icons.phone,
                       keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'El teléfono es requerido';
-                        }
-                        if (!RegExp(r'^9[0-9]{8}$').hasMatch(value)) {
-                          return 'El teléfono debe comenzar con 9 y tener 9 dígitos';
-                        }
-                        return null;
-                      },
+                      validator: _validatePhone,
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    // Campo de ubicación
                     GestureDetector(
                       onTap: _selectLocation,
                       child: AbsorbPointer(
@@ -278,31 +330,32 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    // Campo de cumpleaños
-                    _buildTextField(
-                      controller: _birthdayController,
-                      hintText: 'Cumpleaños (dd/mm/yyyy)',
-                      prefixIcon: Icons.cake,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(10),
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          String text = newValue.text.replaceAll('/', '');
-                          if (text.length >= 2) text = text.substring(0, 2) + '/' + text.substring(2);
-                          if (text.length >= 5) text = text.substring(0, 5) + '/' + text.substring(5);
-                          return newValue.copyWith(
-                            text: text,
-                            selection: TextSelection.collapsed(offset: text.length),
-                          );
-                        }),
-                      ],
-                    ),
+                    _buildDateField(),
                     SizedBox(height: screenHeight * 0.02),
-                    // Campo de contraseña
-                    _buildTextField(
+                    TextFormField(
                       controller: _passwordController,
-                      hintText: 'Contraseña',
-                      prefixIcon: Icons.lock,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFF800020)),
+                        hintText: 'Contraseña',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF800020),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'La contraseña es requerida';
@@ -311,7 +364,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
                     SizedBox(height: screenHeight * 0.04),
-                    // Botón de registro
                     ElevatedButton(
                       onPressed: _register,
                       style: ElevatedButton.styleFrom(

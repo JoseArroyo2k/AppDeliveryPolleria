@@ -99,16 +99,12 @@ class _GoogleMapsLocationPickerState extends State<GoogleMapsLocationPicker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selecciona tu ubicación'),
-        backgroundColor: const Color(0xFF800020),
-      ),
       body: Stack(
         children: [
           GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
-              target: _selectedLocation ?? const LatLng(-12.0464, -77.0428), // Lima, Perú
+              target: _selectedLocation ?? const LatLng(-12.0464, -77.0428),
               zoom: 15,
             ),
             myLocationEnabled: true,
@@ -130,6 +126,43 @@ class _GoogleMapsLocationPickerState extends State<GoogleMapsLocationPicker> {
                 : {},
           ),
           Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF800020),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Text(
+                    'Selecciona tu ubicación',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
             bottom: 20,
             left: 20,
             right: 20,
@@ -137,33 +170,35 @@ class _GoogleMapsLocationPickerState extends State<GoogleMapsLocationPicker> {
               children: [
                 if (_addressName.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Text(
                       _addressName,
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF800020),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    elevation: 4,
                   ),
                   onPressed: _selectedLocation != null
                       ? () {
@@ -178,8 +213,8 @@ class _GoogleMapsLocationPickerState extends State<GoogleMapsLocationPicker> {
                     'Confirmar ubicación',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),

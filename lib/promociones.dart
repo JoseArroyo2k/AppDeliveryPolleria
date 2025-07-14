@@ -28,8 +28,9 @@ class _PromocionesPageState extends State<PromocionesPage> {
           .get();
 
       setState(() {
-        promocionesProducts =
-            snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        promocionesProducts = snapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -38,7 +39,8 @@ class _PromocionesPageState extends State<PromocionesPage> {
     }
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, double screenWidth, double screenHeight) {
+  Widget _buildProductCard(
+      Map<String, dynamic> product, double screenWidth, double screenHeight) {
     String nombre = product['Nombre'] ?? 'Producto sin nombre';
     String descripcion = product['Descripcion'] ?? 'Sin descripción';
     String precio = product['Precio']?.toString() ?? 'Precio no disponible';
@@ -85,9 +87,15 @@ class _PromocionesPageState extends State<PromocionesPage> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        'assets/images/cargando.png',
-                        fit: BoxFit.cover,
+                      Center(
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: Image.asset(
+                            'assets/images/cargando.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                       Image.network(
                         imagenUrl,

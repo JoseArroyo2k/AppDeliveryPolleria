@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:polleriadelivery/services/auth_service.dart';
 import 'user_provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,6 +15,8 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscurePassword = true;
 
   String _hashPassword(String password) {
     var bytes = utf8.encode(password);
@@ -22,33 +25,45 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor completa todos los campos.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
     try {
+      String trimmedEmail = _emailController.text.trim();
+
       QuerySnapshot userSnapshot = await _firestore
           .collection('Usuarios')
-          .where('email', isEqualTo: _emailController.text)
+          .where('email', isEqualTo: trimmedEmail)
           .where('password', isEqualTo: _hashPassword(_passwordController.text))
           .get();
 
       if (userSnapshot.docs.isNotEmpty) {
         var userData = userSnapshot.docs.first.data() as Map<String, dynamic>;
-        String userName = userData['nombre'] ?? 'Usuario';
-        String direccion = userData['dir_texto'] ?? '';
-        String correo = _emailController.text;
-        String numero = userData['telefono'] ?? '';
-        String cumpleanos = userData['cumpleanos'] ?? ''; // Obtener cumpleaños
 
-        Provider.of<UserProvider>(context, listen: false)
-            .setUserData(userName, direccion, correo, numero, cumpleanos);
-
-        Navigator.pushReplacementNamed(
-          context,
-          '/homepage',
-          arguments: {
-            'isRegistered': true,
-            'userName': userName,
-          },
+        Provider.of<UserProvider>(context, listen: false).setUserData(
+          userData['nombre'] ?? 'Usuario',
+          userData['ubicacion_nombre'] ?? 'Sin dirección',
+          userData['ubicacion_coordenadas']?['latitude'] ?? 0.0,
+          userData['ubicacion_coordenadas']?['longitude'] ?? 0.0,
+          userData['email'] ?? '',
+          userData['telefono'] ?? '',
+          userData['cumpleanos'] ?? '',
         );
-        print('Usuario autenticado');
+
+        await AuthService.saveUserSession(userData['email']);
+
+        Navigator.pushReplacementNamed(context, '/homepage', arguments: {
+          'isRegistered': true,
+          'userName': userData['nombre'] ?? 'Usuario',
+        });
+
+        print('Usuario autenticado con éxito');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Correo o contraseña incorrectos')),
@@ -56,14 +71,20 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       print('Error al autenticar el usuario: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesión. Intenta de nuevo.')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
-        height: MediaQuery.of(context).size.height,
+        height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondopollo.jpg'),
@@ -116,11 +137,14 @@ class _LoginPageState extends State<LoginPage> {
                         borderSide: BorderSide.none,
                       ),
                     ),
+                    onEditingComplete: () {
+                      _emailController.text = _emailController.text.trim();
+                    },
                   ),
                   SizedBox(height: 20),
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock, color: Color(0xFF800020)),
                       hintText: 'Contraseña',
@@ -130,13 +154,24 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          color: Color(0xFF800020),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                     ),
                   ),
                   SizedBox(height: 40),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 15),
                         backgroundColor: Color(0xFF800020),
@@ -144,14 +179,16 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'Iniciar Sesión',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -161,5 +198,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

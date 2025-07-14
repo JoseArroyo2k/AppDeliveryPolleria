@@ -28,8 +28,7 @@ class _PlatosCriollosPageState extends State<PlatosCriollosPage> {
           .get();
 
       setState(() {
-        criolloProducts =
-            snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        criolloProducts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -85,9 +84,15 @@ class _PlatosCriollosPageState extends State<PlatosCriollosPage> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        'assets/images/cargando.png',
-                        fit: BoxFit.cover,
+                      Center(
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: Image.asset(
+                            'assets/images/cargando.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                       Image.network(
                         imagenUrl,
